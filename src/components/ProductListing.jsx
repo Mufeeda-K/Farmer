@@ -3,12 +3,18 @@ import { getProducts } from '../config/firebase';
 import AddProductModal from './AddProductModel';
 import ProductDetail from './ProductDetail';
 
-function ProductListing({ user }) {
+function ProductListing() {
   const [products, setProducts] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
+    const checkLoginStatus = () => {
+      const userToken = localStorage.getItem('userToken');
+      setIsLoggedIn(!!userToken);
+    };
+
     const fetchProducts = async () => {
       try {
         const fetchedProducts = await getProducts();
@@ -18,6 +24,7 @@ function ProductListing({ user }) {
       }
     };
 
+    checkLoginStatus();
     fetchProducts();
   }, [isAddModalOpen]);
 
@@ -25,13 +32,11 @@ function ProductListing({ user }) {
     setSelectedProduct(product);
   };
 
-  const isAdmin = user?.email === 'admin@admin.com';
-
   return (
     <div className="container">
       <div className="header">
         <h2>Farm Fresh Products</h2>
-        {isAdmin && (
+        {isLoggedIn && (
           <button 
             onClick={() => setIsAddModalOpen(true)}
             className="add-product-btn"
@@ -51,12 +56,12 @@ function ProductListing({ user }) {
             <h3>{product.name}</h3>
             <p>{product.description}</p>
             <p>Price: ${product.price.toFixed(2)}</p>
-            <p>Farmer: {product.farmer}</p>
+            {isLoggedIn && <p>Farmer: {product.farmer}</p>}
           </div>
         ))}
       </div>
 
-      {isAddModalOpen && (
+      {isLoggedIn && isAddModalOpen && (
         <AddProductModal 
           isOpen={isAddModalOpen} 
           onClose={() => setIsAddModalOpen(false)} 
