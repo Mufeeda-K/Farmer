@@ -1,19 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  setPersistence,
-  browserLocalPersistence
-} from "firebase/auth";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc,
-  setDoc
-} from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRN4UzTnymRl5gDG7qnXcb8_ING7G2Cgk",
@@ -30,72 +17,60 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Set persistent authentication
-setPersistence(auth, browserLocalPersistence);
-
-// Create default admin user
-const createDefaultAdmin = async () => {
+// Authentication functions
+export const signUp = async (email, password, additionalInfo = {}) => {
   try {
-    const email = 'admin@admin.com';
-    const password = 'admin123';
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Add additional user info to Firestore
+    await addDoc(collection(db, 'farmers'), {
+      uid: user.uid,
+      email: user.email,
+      ...additionalInfo
+    });
 
-    // Try to sign in first
-    await signInWithEmailAndPassword(auth, email, password);
+    return user;
   } catch (error) {
-    // If user doesn't exist, create it
-    if (error.code === 'auth/user-not-found') {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Create admin user document in Firestore
-        await setDoc(doc(db, 'farmers', user.uid), {
-          uid: user.uid,
-          email: email,
-          role: 'admin',
-          name: 'Admin Farmer'
-        });
-
-        console.log('Default admin user created');
-      } catch (createError) {
-        console.error('Error creating default admin:', createError);
-      }
-    } else {
-      console.error('Login error:', error);
-    }
+    console.error("Error signing up:", error);
+    throw error;
   }
 };
 
-// Authentication functions
 export const signIn = (email, password) => {
   return signInWithEmailAndPassword(auth, email, password);
 };
 
-export const signUp = async (email, password, additionalInfo = {}) => {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
-  
-  await setDoc(doc(db, 'farmers', user.uid), {
-    uid: user.uid,
-    email: user.email,
-    ...additionalInfo
-  });
-
-  return user;
-};
-
 // Product-related functions
 export const addProduct = async (productData) => {
-  return await addDoc(collection(db, 'products'), productData);
+  try {
+    return await addDoc(collection(db, 'products'), productData);
+  } catch (error) {
+    console.error("Error adding product:", error);
+    throw error;
+  }
 };
 
 export const getProducts = async () => {
-  const productsCollection = collection(db, 'products');
-  const snapshot = await getDocs(productsCollection);
-  return snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+  try {
+    const productsCollection = collection(db, 'products');
+    const snapshot = await getDocs(productsCollection);
+    return snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
 };
 
-// Initialize default admin on module load
-createDefaultAdmin();
+export const getFarmerProducts = async (farmerId) => {
+  try {
+    const q = query(collection(db, 'products'), where('farmerId', '==', farmerId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+  } catch (error) {
+    console.error("Error fetching farmer products:", error);
+    throw error;
+  }
+};
 
 export { auth, db };
