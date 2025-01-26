@@ -1,6 +1,4 @@
-Apologies for the misunderstanding! Here's a complete `README.md` with all the necessary sections, including the **full code** of the documentation formatted properly.
 
-```markdown
 # Farmer's Unit 🎯
 
 ## Basic Details
