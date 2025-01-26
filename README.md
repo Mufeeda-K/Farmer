@@ -84,32 +84,8 @@ For Hardware:
 5. **Other Visuals:**
    ![Screenshot (5)](https://github.com/user-attachments/assets/f0349bf9-4cf3-45e2-9f69-5b9715eff9ab)
 
-#### Workflow Diagram:
-(You can add your workflow or architecture diagram here with a caption explaining the flow of the application.)
 
-#### Build Photos:
-1. **Team**:
-   (Add photo of your team here)
-   
-2. **Components**:
-   (Add photos of your components here. List the components shown, such as servers, routers, etc.)
 
-3. **Build Process**:
-   (Add photos of the build process. Explain the build steps you followed, such as setting up React, deployment, etc.)
-
-4. **Final Product**:
-   (Add photo of the final product here. Explain how the final version of the project looks or functions.)
-
----
-
-### Project Demo
-
-#### Video:
-[Add your demo video link here]
-- *Explain what the video demonstrates (e.g., login process, adding products, browsing available products, etc.)*
-
-#### Additional Demos:
-(Include any additional demo links or materials)
 
 ## Team Contributions
 - **Mufeeda.K**: Frontend development (React), Product page creation, Design & UI development.
